@@ -1,8 +1,8 @@
 import { StatusBar } from 'expo-status-bar';
 import React,{Component} from 'react';
-import { StyleSheet, Text, View,TouchableOpacity,FlatList} from 'react-native';
+import { StyleSheet, Text, View,TouchableWithoutFeedback,FlatList} from 'react-native';
 
-class StopWatch extends Component{
+class StopWatchApp extends Component{
   constructor(props){
       super(props)
       this.props=props
@@ -16,6 +16,7 @@ class StopWatch extends Component{
       this.interval=null
       this.saveds=[]
       this.flatList = null
+      this.available=true
   }
 
   start(){
@@ -52,8 +53,10 @@ class StopWatch extends Component{
   }
  
   save(){
+     this.available=false
      this.saveds.push({h:this.state.hour,m:this.state.minute,s:this.state.second,ms:this.state.milisecond,key:this.saveds.length})
-  }
+     this.available=true
+    }
 
 
   renderItem(e){
@@ -70,11 +73,13 @@ class StopWatch extends Component{
   }
 
   toggleStopWatch(){
-    if(this.state.stopwatchState=="start"){
-      this.start()
+    if(this.available){
+      if(this.state.stopwatchState=="start"){
+        this.start()
+      }
+      else
+        this.stop()
     }
-    else
-       this.stop()
   }
 
 
@@ -106,19 +111,19 @@ class StopWatch extends Component{
        <View style={{flexDirection:"row"}}>
 
        {this.state.stopwatchState=="start"?
-       <TouchableOpacity style={{marginRight:20}} onPress={this.save.bind(this)}>
-         <Text style={{fontSize:30,alignSelf:"center"}}>save</Text>
-       </TouchableOpacity>
+       <TouchableWithoutFeedback  onPress={this.save.bind(this)}>
+         <Text style={{fontSize:30,alignSelf:"center",marginRight:20}}>save</Text>
+       </TouchableWithoutFeedback>
        :null}
 
-       <TouchableOpacity style={{marginRight:20,marginLeft:20}} onPress={this.toggleStopWatch.bind(this)}>
-         <Text style={{fontSize:30,alignSelf:"center"}}>{this.state.stopwatchState}</Text>
-       </TouchableOpacity>
+       <TouchableWithoutFeedback  onPress={this.toggleStopWatch.bind(this)}>
+         <Text style={{fontSize:30,alignSelf:"center",marginRight:20,marginLeft:20}}>{this.state.stopwatchState}</Text>
+       </TouchableWithoutFeedback>
 
        {this.state.stopwatchState=="start"?
-       <TouchableOpacity style={{marginLeft:20}} onPress={this.reset.bind(this)}>
-         <Text style={{fontSize:30,alignSelf:"center"}}>reset</Text>
-       </TouchableOpacity>
+       <TouchableWithoutFeedback  onPress={this.reset.bind(this)}>
+         <Text style={{fontSize:30,alignSelf:"center",marginLeft:20}}>reset</Text>
+       </TouchableWithoutFeedback>
        :null}
 
        </View>
@@ -126,8 +131,9 @@ class StopWatch extends Component{
        <View style={{flexDirection:"column",height:"30%",position:"absolute",bottom:100}}>
          {this.saveds.length>0? 
          <FlatList 
+            onScrollAnimationEnd={false}
             ref={ref=>this.flatList=ref}
-            onContentSizeChange={()=> this.flatList.scrollToEnd()}
+            onContentSizeChange={()=> this.flatList.scrollToEnd({animated: false})}
             showsHorizontalScrollIndicator={false} data={this.saveds}
             keyExtractor={item => item.key.toString()}
             renderItem={this.renderItem.bind(this)}
@@ -143,26 +149,5 @@ class StopWatch extends Component{
 }
 
 
-class App extends Component {
- render(){ 
-  return (
-    <View style={styles.container}>
-      <StopWatch>
-      </StopWatch>
-      <StatusBar style="auto" />
-    </View>
-  );
- }
-}
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    alignItems:"center"
-  },
-});
-
-export default App;
+export default StopWatchApp;
